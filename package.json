@@ -1,0 +1,17 @@
+{
+  "name": "opensds-robot",
+  "version": "0.0.1",
+  "description": "This is the entry of opensds service",
+  "main": "index.js",
+  "dependencies": {
+    "botpress": "1.x",
+    "botpress-web": "1.x",
+    "http-client": "^4.3.1"
+  },
+  "scripts": {
+    "start": "botpress start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "leonwang",
+  "license": "Botpress Proprietary License"
+}
