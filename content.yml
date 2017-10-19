@@ -22,6 +22,8 @@ delete_instance:
 bind_instance:
   - text: The storage service instance has been binded !
     typing: true
+  - text: The service credential info has been printed on console !
+    typing: true
 
 unbind_instance:
   - text: The storage service instance has been unbinded !

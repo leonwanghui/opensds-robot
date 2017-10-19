@@ -22,6 +22,10 @@
 var util = require('util');
 var http = require('http-request');
 
+const catalogURL = 'http://localhost:8005/v2/catalog';
+const instanceURL = 'http://localhost:8005/v2/service_instances/123'
+const bindingURL = 'http://localhost:8005/v2/service_instances/123/service_bindings/1'
+
 module.exports = function (bp) {
 
   // Listens for a first message (this is a Regex)
@@ -31,23 +35,23 @@ module.exports = function (bp) {
     event.reply('#welcome') // See the file `content.yml` to see the block
   })
 
-  bp.hear(/catalog|service/i, (event, next) => {
-    http.get('http://localhost:8005/v2/catalog', function (err, res) {
+  bp.hear(/show|catalog|service/i, (event, next) => {
+    http.get(catalogURL, function (err, res) {
       if (err) {
         console.error(err);
         return;
       }
-      var service = util.inspect(JSON.parse(res.buffer).services[0])
+      var service = util.inspect(JSON.parse(res.buffer).services[0], false, 3)
       console.log('Service object is:', service)
     });
 
     event.reply('#catalog')
   })
 
-  bp.hear(/create instance|create serviceinstance/i, (event, next) => {
+  bp.hear(/create|create instance|create serviceinstance/i, (event, next) => {
     var planId = ''
 
-    http.get('http://localhost:8005/v2/catalog', function (err, res) {
+    http.get(catalogURL, function (err, res) {
       if (err) {
         console.error(err);
         return;
@@ -62,7 +66,7 @@ module.exports = function (bp) {
 
     var body = JSON.stringify({'plan_id': planId})
     http.put({
-      url: 'http://localhost:8005/v2/service_instances/123',
+      url: instanceURL,
       reqBody: new Buffer(body),
       headers: {
         'content-type': 'application/json'
@@ -73,29 +77,31 @@ module.exports = function (bp) {
         return;
       }
       
-      console.log(res.code, res.buffer.toString());
+      console.log(res.code);
     });
 
     event.reply('#create_instance')
   })
 
-  bp.hear(/delete instance|delete serviceinstance/i, (event, next) => {
-    http.delete('http://localhost:8005/v2/service_instances/123', function (err, res) {
+  bp.hear(/delete|delete instance|delete serviceinstance/i, (event, next) => {
+    http.delete(instanceURL, function (err, res) {
       if (err) {
         console.error(err);
         return;
       }
       
-      console.log(res.code, res.buffer.toString());
+      console.log(res.code);
     });
 
     event.reply('#delete_instance')
   })
 
-  bp.hear(/bind instance|bind serviceinstance/i, (event, next) => {
+  bp.hear(/bind|bind instance|bind serviceinstance/i, (event, next) => {
+    var body = JSON.stringify({})
+
     http.put({
-      url: 'http://localhost:8005/v2/service_instances/123/service_bindings/1',
-      reqBody: new Buffer(''),
+      url: bindingURL,
+      reqBody: new Buffer(body),
       headers: {
         'content-type': 'application/json'
       }
@@ -111,17 +117,17 @@ module.exports = function (bp) {
     event.reply('#bind_instance')
   })
 
-  bp.hear(/unbind instance|unbind serviceinstance/i, (event, next) => {
-    http.delete('http://localhost:8005/v2/service_instances/123/service_bindings/1', function (err, res) {
+  bp.hear(/free|free instance|free serviceinstance/i, (event, next) => {
+    http.delete(bindingURL, function (err, res) {
       if (err) {
         console.error(err);
         return;
       }
       
-      console.log(res.code, res.buffer.toString());
+      console.log(res.code);
     });
 
-    event.reply('#delete_instance')
+    event.reply('#unbind_instance')
   })
 
   // Say good-bye!
